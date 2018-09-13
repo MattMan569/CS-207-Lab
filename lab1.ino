@@ -16,61 +16,55 @@ void loop() {
 
 
 
+char const * const message = "hello";
+	for (int i = 0; message[i] != '\0'; i++)
+	{
+		std::cout << latinToMorse(message[i]) << std::endl;
+	}
 
-    #include <iostream>
-     
-#define MORSE_CODE \
-X(A, ".-") \
-X(B, "-...") \
-X(C, "-.-.") \
-X(D, "-..") \
-X(E, ".") \
-X(F, "..-.") \
-X(G, "--.") \
-X(H, "....") \
-X(I, "..") \
-X(J, ".---") \
-X(K, "-.-") \
-X(L, ".-..") \
-X(M, "--") \
-X(N, "-.") \
-X(O, "---") \
-X(P, ".--.") \
-X(Q, "--.-") \
-X(R, ".-.") \
-X(S, "...") \
-X(T, "-") \
-X(U, "..-") \
-X(V, "...-") \
-X(W, ".--") \
-X(X, "-..-") \
-X(Y, "-.--") \
-X(Z, "--..") \
-X(SL, "   ") \
-X(SW, "       ")
 
-#define X(latin, morse) latin,
-enum LatinCharacter// : size_t
-{
-    MORSE_CODE
-};
-#undef X
 
-#define X(latin, morse) morse,
-char const * morseCode[] =
+// Take a character as input and return the corresponding
+// Morse code if it is a supported latin alphanumeric character,
+// return nothing if it is not supported.
+char const * const latinToMorse(char c)
 {
-    MORSE_CODE
-};
-#undef X
-     
-int main()
-{
-	std::cout << "Enum value: " << LatinCharacter::F << std::endl;
-	std::cout << "Morse code: " << morseCode[LatinCharacter::F] << std::endl;
+	if (c == 'a' || c == 'A') return ".-";
+	else if (c =='b' || c =='B') return "-...";
+	else if (c == 'c' || c == 'C') return "-.-.";
+	else if (c == 'd' || c == 'D') return "-..";
+	else if (c == 'e' || c == 'E') return ".";
+	else if (c == 'f' || c == 'F') return "..-.";
+	else if (c == 'h' || c == 'H') return "....";
+	else if (c == 'i' || c == 'I') return "..";
+	else if (c == 'j' || c == 'J') return ".---";
+	else if (c == 'k' || c == 'K') return "-.-";
+	else if (c == 'l' || c == 'L') return ".-..";
+	else if (c == 'm' || c == 'M') return "--";
+	else if (c == 'n' || c == 'N') return "-.";
+	else if (c == 'o' || c == 'O') return "---";
+	else if (c == 'p' || c == 'P') return ".--.";
+	else if (c == 'q' || c == 'Q') return "--.-";
+	else if (c == 'r' || c == 'R') return ".-.";
+	else if (c == 's' || c == 'S') return "...";
+	else if (c == 't' || c == 'T') return "-";
+	else if (c == 'u' || c == 'U') return "..-";
+	else if (c == 'v' || c == 'V') return "...-";
+	else if (c == 'w' || c == 'W') return ".--";
+	else if (c == 'x' || c == 'X') return "-..-";
+	else if (c == 'y' || c == 'Y') return "-.--";
+	else if (c == 'z' || c == 'Z') return "--..";
+	else if (c == '1') return ".----";
+	else if (c == '2') return "..---";
+	else if (c == '3') return "...--";
+	else if (c == '4') return "....-";
+	else if (c == '5') return ".....";
+	else if (c == '6') return "-....";
+	else if (c == '7') return "--...";
+	else if (c == '8') return "---..";
+	else if (c == '9') return "----.";
+	else if (c == '0') return "-----";
 	
-	LatinCharacter lc = C;
-	std::cout << "Enum value: " << lc << std::endl;
-	std::cout << "Morse code: " << morseCode[lc] << std::endl;
-	
-	return 0;
+	// Ignore invalid inputs
+	else return "";
 }
