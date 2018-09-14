@@ -69,8 +69,7 @@ void loop()
   // then read it
   readMorseCodeMessage(latinMessageToMorseCode(message));
 #endif
-
-  Serial.write('\n');
+xyzx
   delay(2 * ws);
   Serial.flush();
 }
@@ -154,6 +153,7 @@ String latinMessageToMorseCode(String message)
 
   Serial.write("Morse code: ");
   Serial.print(morseCode);
+  Serial.write('\n');
 
   return morseCode;
 }
