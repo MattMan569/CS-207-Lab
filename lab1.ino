@@ -1,24 +1,33 @@
-#define SERIAL_INPUT true
+// Specify whether or serial input
+// or a hardcoded message is to be used
+#define SERIAL_INPUT false
 
-// Pin used to control the LED and piezo buzzer
-int const led = 7;
-int const piezo = 8;
+// Pin definitions
+int const led = 7;    // LED control
+int const piezo = 8;  // Piezo control
+int const pot = 0;    // Potentiometer analog read on A0
 
-// Define a standard unit of time
-int timeUnit = 50;
+// Define a standard unit of time which will then be modified by the potentiometer
+int const timeUnitBase = 50;
+
+// Final value for the time unit after potentiometer modifications
+int timeUnit = timeUnitBase;
+
+// Previous time value before it is updated
+int previousTimeUnit = timeUnit;
 
 // Define a dot, dash, letter space, and word space
-int const dot = timeUnit;       // One unit of time
-int const dash = 3 * timeUnit;  // Three units of time
-int const ls = 3 * timeUnit;    // Three units of time
-int const ws = 7 * timeUnit;    // Seven units of time
+int dot = timeUnit;       // One unit of time
+int dash = 3 * timeUnit;  // Three units of time
+int ls = 3 * timeUnit;    // Three units of time
+int ws = 7 * timeUnit;    // Seven units of time
 
 // Define the frequency for the piezo to operate at
 int const piezoFrequency = 600;
 
 // Message to be displayed in morse code
-String const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-
+//String const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+String const message = "Hello, world!";
 
 
 
@@ -27,14 +36,13 @@ void setup()
 {
   // Initialize the serial
   Serial.begin(9600);
-  Serial.write("Initializing setup... ");
+  Serial.print("Initializing setup... ");
   
   // Initialize the LED and piezo pins as outputs.
   pinMode(led, OUTPUT);
   pinMode(piezo, OUTPUT);
 
-  Serial.write("Setup finished.");
-  Serial.write('\n');
+  Serial.println("Setup finished.\n");
   Serial.flush();
 }
 
@@ -44,13 +52,9 @@ void setup()
 // The loop function runs over and over again forever
 void loop()
 {
-  /*
-  // Convert the message defined above into Morse code
-  // then read it
-  readMorseCodeMessage(latinMessageToMorseCode(message));
-  */
-
+  // Serial input
 #if SERIAL_INPUT
+
   // Wait for user input
   while(!Serial.available()) ;
 
@@ -64,13 +68,18 @@ void loop()
   // Convert the message defined above into Morse code
   // then read it
   readMorseCodeMessage(latinMessageToMorseCode(input));
+
+  // Hardcoded message
 #else
+
   // Convert the message defined above into Morse code
   // then read it
   readMorseCodeMessage(latinMessageToMorseCode(message));
-#endif
-xyzx
+  
+#endif // SERIAL_INPUT
+  
   delay(2 * ws);
+  Serial.print('\n');
   Serial.flush();
 }
 
@@ -118,14 +127,14 @@ String latinCharacterToMorseCode(char c)
   else if (c == '8') return "---..";
   else if (c == '9') return "----.";
   else if (c == '0') return "-----";
-  else if (c == ' ') return " "; // Space between words, interpreted as 7 units
+  else if (c == ' ') return " "; // Space between words, interpreted as 7 units of time
   
   // Ignore invalid inputs
   else
   {
-    Serial.write("WARNING (latinCharacterToMorseCode): unsupported input. Unsupported input was: ");
-    Serial.write(c);
-    Serial.write('\n');
+    Serial.print("WARNING (latinCharacterToMorseCode): unsupported input. Unsupported input was: ");
+    Serial.println(c);
+    Serial.flush();
 
     return "";
   }
@@ -151,9 +160,10 @@ String latinMessageToMorseCode(String message)
       morseCode += "l";
   }
 
-  Serial.write("Morse code: ");
-  Serial.print(morseCode);
-  Serial.write('\n');
+  // Print the morse code message
+  Serial.print("Morse code: ");
+  Serial.println(morseCode);
+  Serial.flush();
 
   return morseCode;
 }
@@ -165,6 +175,8 @@ String latinMessageToMorseCode(String message)
 // playing the code or delaying
 void readMorseCode(char c)
 {
+  updateTimeUnit();
+  
   // Toggle the LED for the required units of time if
   // the character is a dot or dash, delay for the required
   // units of time if it is a letter or word space
@@ -174,9 +186,9 @@ void readMorseCode(char c)
   else if (c == ' ') delay(ws);
   else
   {
-    Serial.write("ERROR (readMorseCode): invalid input. Invalid input was: ");
-    Serial.write(c);
-    Serial.write('\n');
+    Serial.print("ERROR (readMorseCode): invalid input. Invalid input was: ");
+    Serial.println(c);
+    Serial.flush();
   }
 }
 
@@ -210,4 +222,44 @@ void playMorseCode(int duration)
   tone(piezo, piezoFrequency, duration);
   delay(duration);
   digitalWrite(led, LOW);
+}
+
+
+
+
+// Read the potentiometer and change the timeUnit value if it has changed
+void updateTimeUnit()
+{
+  // Add the potentiometer reading to the base time unit, divided by 2 to reduce sensitivity
+  // Possible values of timeUnitBase to timeUnitBase + 1023 / 2
+  int potValue = analogRead(pot);
+  int modifyingValue = potValue / 2;
+  timeUnit = timeUnitBase + modifyingValue;
+
+  // If the time has changed update the Morse code timing values
+  if (timeUnit != previousTimeUnit)
+  {
+    Serial.print("Old time unit: ");
+    Serial.print(previousTimeUnit);
+    Serial.print("   New time unit: ");
+    Serial.print(timeUnit);
+    Serial.print("   Pot reading: ");
+    Serial.println(potValue);
+    Serial.flush();
+    
+    previousTimeUnit = timeUnit;
+    updateMorseTimes();
+  }
+}
+
+
+
+
+// Update the global Morse code timings
+void updateMorseTimes()
+{
+  dot = timeUnit;       // One unit of time
+  dash = 3 * timeUnit;  // Three units of time
+  ls = 3 * timeUnit;    // Three units of time
+  ws = 7 * timeUnit;    // Seven units of time
 }
