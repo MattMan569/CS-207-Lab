@@ -1,8 +1,11 @@
-// Pin used to control the LED
+#define SERIAL_INPUT true
+
+// Pin used to control the LED and piezo buzzer
 int const led = 7;
+int const piezo = 8;
 
 // Define a standard unit of time
-int timeUnit = 500;
+int timeUnit = 50;
 
 // Define a dot, dash, letter space, and word space
 int const dot = timeUnit;       // One unit of time
@@ -10,9 +13,11 @@ int const dash = 3 * timeUnit;  // Three units of time
 int const ls = 3 * timeUnit;    // Three units of time
 int const ws = 7 * timeUnit;    // Seven units of time
 
+// Define the frequency for the piezo to operate at
+int const piezoFrequency = 600;
+
 // Message to be displayed in morse code
-// char const * const message = "Hello world";
-String const message = "ab c d";
+String const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
 
 
@@ -24,8 +29,9 @@ void setup()
   Serial.begin(9600);
   Serial.write("Initializing setup... ");
   
-  // Initialize the led pin as an output.
+  // Initialize the LED and piezo pins as outputs.
   pinMode(led, OUTPUT);
+  pinMode(piezo, OUTPUT);
 
   Serial.write("Setup finished.");
   Serial.write('\n');
@@ -38,13 +44,34 @@ void setup()
 // The loop function runs over and over again forever
 void loop()
 {
+  /*
   // Convert the message defined above into Morse code
   // then read it
   readMorseCodeMessage(latinMessageToMorseCode(message));
-  
+  */
+
+#if SERIAL_INPUT
+  // Wait for user input
+  while(!Serial.available()) ;
+
+  // Read user input from the serial
+  String input = "";
+  input = Serial.readString();
+
+  // Remove the extraneous \n from the input
+  input.remove(input.length() -1);
+
+  // Convert the message defined above into Morse code
+  // then read it
+  readMorseCodeMessage(latinMessageToMorseCode(input));
+#else
+  // Convert the message defined above into Morse code
+  // then read it
+  readMorseCodeMessage(latinMessageToMorseCode(message));
+#endif
 
   Serial.write('\n');
-  delay(5000);
+  delay(2 * ws);
   Serial.flush();
 }
 
@@ -54,7 +81,6 @@ void loop()
 // Take a character as input and return the corresponding
 // Morse code if it is a supported latin alphanumeric character,
 // return nothing if it is not supported.
-// char const * latinToMorse(char c)
 String latinCharacterToMorseCode(char c)
 {
   if (c == 'a' || c == 'A') return ".-";
@@ -63,6 +89,7 @@ String latinCharacterToMorseCode(char c)
   else if (c == 'd' || c == 'D') return "-..";
   else if (c == 'e' || c == 'E') return ".";
   else if (c == 'f' || c == 'F') return "..-.";
+  else if (c == 'g' || c == 'G') return "--.";
   else if (c == 'h' || c == 'H') return "....";
   else if (c == 'i' || c == 'I') return "..";
   else if (c == 'j' || c == 'J') return ".---";
@@ -95,7 +122,14 @@ String latinCharacterToMorseCode(char c)
   else if (c == ' ') return " "; // Space between words, interpreted as 7 units
   
   // Ignore invalid inputs
-  else return "";
+  else
+  {
+    Serial.write("WARNING (latinCharacterToMorseCode): unsupported input. Unsupported input was: ");
+    Serial.write(c);
+    Serial.write('\n');
+
+    return "";
+  }
 }
 
 
@@ -118,24 +152,32 @@ String latinMessageToMorseCode(String message)
       morseCode += "l";
   }
 
+  Serial.write("Morse code: ");
+  Serial.print(morseCode);
+
   return morseCode;
 }
 
 
 
 
+// Given a single character of Morse code take the appropriate action,
+// playing the code or delaying
 void readMorseCode(char c)
 {
-  Serial.write(c);
-
   // Toggle the LED for the required units of time if
   // the character is a dot or dash, delay for the required
   // units of time if it is a letter or word space
-  if (c == '.') toggleLed(dot);
-  else if (c == '-') toggleLed(dash);
+  if (c == '.') playMorseCode(dot);
+  else if (c == '-') playMorseCode(dash);
   else if (c == 'l') delay(ls);
   else if (c == ' ') delay(ws);
-  else Serial.write("ERROR (readMorseCode): invalid input");
+  else
+  {
+    Serial.write("ERROR (readMorseCode): invalid input. Invalid input was: ");
+    Serial.write(c);
+    Serial.write('\n');
+  }
 }
 
 
@@ -162,9 +204,10 @@ void readMorseCodeMessage(String morseCode)
 
 
 // Function for turning the LED on for the specified time duration
-void toggleLed(int duration)
+void playMorseCode(int duration)
 {
   digitalWrite(led, HIGH);
+  tone(piezo, piezoFrequency, duration);
   delay(duration);
   digitalWrite(led, LOW);
 }
