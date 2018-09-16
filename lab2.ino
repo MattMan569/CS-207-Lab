@@ -196,7 +196,7 @@ void readMorseCode(char c)
   else if (c == ' ') delay(global::ws);
   else
   {
-    Serial.print(F("ERROR (readMorseCode): invalid input. Invalid input was: "));
+    Serial.print("ERROR (readMorseCode): invalid input. Invalid input was: ");
     Serial.println(c);
     Serial.flush();
   }
