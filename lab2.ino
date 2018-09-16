@@ -2,32 +2,41 @@
 // or a hardcoded message is to be used
 #define SERIAL_INPUT false
 
-// Pin definitions
-int const led = 7;    // LED control
-int const piezo = 8;  // Piezo control
-int const pot = 0;    // Potentiometer analog read on A0
+namespace global
+{
 
-// Define a standard unit of time which will then be modified by the potentiometer
-int const timeUnitBase = 50;
+  // Pin definitions
+  int const led = 7;    // LED control
+  int const piezo = 8;  // Piezo control
+  int const pot = 0;    // Potentiometer analog read on A0
 
-// Final value for the time unit after potentiometer modifications
-int timeUnit = timeUnitBase;
+  // Define a standard unit of time which will then be modified by the potentiometer
+  int const timeUnitBase = 50;
 
-// Previous time value before it is updated
-int previousTimeUnit = timeUnit;
+  // Final value for the time unit after potentiometer modifications
+  int timeUnit = timeUnitBase;
 
-// Define a dot, dash, letter space, and word space
-int dot = timeUnit;       // One unit of time
-int dash = 3 * timeUnit;  // Three units of time
-int ls = 3 * timeUnit;    // Three units of time
-int ws = 7 * timeUnit;    // Seven units of time
+  // Previous time value before it is updated
+  int previousTimeUnit = timeUnit;
 
-// Define the frequency for the piezo to operate at
-int const piezoFrequency = 600;
+  // Define a dot, dash, letter space, and word space
+  int const dotTime = 1;    // One unit of time
+  int const dashTime = 3;   // Three units of time
+  int const lsTime = 3;     // Three units of time
+  int const wsTime = 7;     // Seven units of time
+  int dot = dotTime * timeUnit;
+  int dash = dashTime * timeUnit;
+  int ls = lsTime * timeUnit;       // Letter space
+  int ws = wsTime * timeUnit;       // Word space
 
-// Message to be displayed in morse code
-//String const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-String const message = "Hello, world!";
+  // Define the frequency for the piezo to operate at
+  int const piezoFrequency = 600;
+
+  // Message to be displayed in morse code
+  String const message = "Hello, world!";
+
+}
+
 
 
 
@@ -39,8 +48,8 @@ void setup()
   Serial.print("Initializing setup... ");
   
   // Initialize the LED and piezo pins as outputs.
-  pinMode(led, OUTPUT);
-  pinMode(piezo, OUTPUT);
+  pinMode(global::led, OUTPUT);
+  pinMode(global::piezo, OUTPUT);
 
   Serial.println("Setup finished.\n");
   Serial.flush();
@@ -59,8 +68,7 @@ void loop()
   while(!Serial.available()) ;
 
   // Read user input from the serial
-  String input = "";
-  input = Serial.readString();
+  String input = Serial.readString();
 
   // Remove the extraneous \n from the input
   input.remove(input.length() -1);
@@ -74,12 +82,12 @@ void loop()
 
   // Convert the message defined above into Morse code
   // then read it
-  readMorseCodeMessage(latinMessageToMorseCode(message));
+  readMorseCodeMessage(latinMessageToMorseCode(global::message));
   
 #endif // SERIAL_INPUT
   
-  delay(2 * ws);
-  Serial.print('\n');
+  delay(2 * global::ws);
+  Serial.println();
   Serial.flush();
 }
 
@@ -157,7 +165,9 @@ String latinMessageToMorseCode(String message)
     // Append a letter space designator so long as the next character is not a space
     // and the current character is neither a space nor the end of the string
     if ((i + 1) != message.length() && message[i] != ' ' && message[i + 1] != ' ')
+    {
       morseCode += "l";
+    }
   }
 
   // Print the morse code message
@@ -180,13 +190,13 @@ void readMorseCode(char c)
   // Toggle the LED for the required units of time if
   // the character is a dot or dash, delay for the required
   // units of time if it is a letter or word space
-  if (c == '.') playMorseCode(dot);
-  else if (c == '-') playMorseCode(dash);
-  else if (c == 'l') delay(ls);
-  else if (c == ' ') delay(ws);
+  if (c == '.') playMorseCode(global::dot);
+  else if (c == '-') playMorseCode(global::dash);
+  else if (c == 'l') delay(global::ls);
+  else if (c == ' ') delay(global::ws);
   else
   {
-    Serial.print("ERROR (readMorseCode): invalid input. Invalid input was: ");
+    Serial.print(F("ERROR (readMorseCode): invalid input. Invalid input was: "));
     Serial.println(c);
     Serial.flush();
   }
@@ -208,7 +218,9 @@ void readMorseCodeMessage(String morseCode)
     // and neither the current character nor the next character are a letter or word space
     if ((i + 1) != morseCode.length() && morseCode[i] != 'l' && morseCode[i + 1] != 'l'
         && morseCode[i] != ' ' && morseCode[i + 1] != ' ')
-      delay(timeUnit);
+    {
+      delay(global::timeUnit);
+    }
   }
 }
 
@@ -218,10 +230,10 @@ void readMorseCodeMessage(String morseCode)
 // Function for turning the LED on for the specified time duration
 void playMorseCode(int duration)
 {
-  digitalWrite(led, HIGH);
-  tone(piezo, piezoFrequency, duration);
+  digitalWrite(global::led, HIGH);
+  tone(global::piezo, global::piezoFrequency, duration);
   delay(duration);
-  digitalWrite(led, LOW);
+  digitalWrite(global::led, LOW);
 }
 
 
@@ -232,22 +244,22 @@ void updateTimeUnit()
 {
   // Add the potentiometer reading to the base time unit, divided by 2 to reduce sensitivity
   // Possible values of timeUnitBase to timeUnitBase + 1023 / 2
-  int potValue = analogRead(pot);
+  int potValue = analogRead(global::pot);
   int modifyingValue = potValue / 2;
-  timeUnit = timeUnitBase + modifyingValue;
+  global::timeUnit = global::timeUnitBase + modifyingValue;
 
   // If the time has changed update the Morse code timing values
-  if (timeUnit != previousTimeUnit)
+  if (global::timeUnit != global::previousTimeUnit)
   {
     Serial.print("Old time unit: ");
-    Serial.print(previousTimeUnit);
+    Serial.print(global::previousTimeUnit);
     Serial.print("   New time unit: ");
-    Serial.print(timeUnit);
+    Serial.print(global::timeUnit);
     Serial.print("   Pot reading: ");
     Serial.println(potValue);
     Serial.flush();
     
-    previousTimeUnit = timeUnit;
+    global::previousTimeUnit = global::timeUnit;
     updateMorseTimes();
   }
 }
@@ -258,8 +270,8 @@ void updateTimeUnit()
 // Update the global Morse code timings
 void updateMorseTimes()
 {
-  dot = timeUnit;       // One unit of time
-  dash = 3 * timeUnit;  // Three units of time
-  ls = 3 * timeUnit;    // Three units of time
-  ws = 7 * timeUnit;    // Seven units of time
+  global::dot = global::dotTime * global::timeUnit;       // One unit of time
+  global::dash = global::dashTime * global::timeUnit;  // Three units of time
+  global::ls = global::lsTime * global::timeUnit;    // Three units of time
+  global::ws = global::wsTime * global::timeUnit;    // Seven units of time
 }
