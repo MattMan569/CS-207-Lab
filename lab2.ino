@@ -270,8 +270,8 @@ void updateTimeUnit()
 // Update the global Morse code timings
 void updateMorseTimes()
 {
-  global::dot = global::dotTime * global::timeUnit;       // One unit of time
-  global::dash = global::dashTime * global::timeUnit;  // Three units of time
-  global::ls = global::lsTime * global::timeUnit;    // Three units of time
-  global::ws = global::wsTime * global::timeUnit;    // Seven units of time
+  global::dot = global::dotTime * global::timeUnit;     // One unit of time
+  global::dash = global::dashTime * global::timeUnit;   // Three units of time
+  global::ls = global::lsTime * global::timeUnit;       // Three units of time
+  global::ws = global::wsTime * global::timeUnit;       // Seven units of time
 }
