@@ -20,10 +20,10 @@ namespace global
   int previousTimeUnit = timeUnit;
 
   // Define a dot, dash, letter space, and word space
-  int const dotTime = 1;    // One unit of time
-  int const dashTime = 3;   // Three units of time
-  int const lsTime = 3;     // Three units of time
-  int const wsTime = 7;     // Seven units of time
+  int const dotTime = 1;            // One unit of time
+  int const dashTime = 3;           // Three units of time
+  int const lsTime = 3;             // Three units of time
+  int const wsTime = 7;             // Seven units of time
   int dot = dotTime * timeUnit;
   int dash = dashTime * timeUnit;
   int ls = lsTime * timeUnit;       // Letter space
@@ -46,7 +46,7 @@ void setup()
   // Initialize the serial
   Serial.begin(9600);
   Serial.print("Initializing setup... ");
-  
+
   // Initialize the LED and piezo pins as outputs.
   pinMode(global::led, OUTPUT);
   pinMode(global::piezo, OUTPUT);
@@ -65,13 +65,13 @@ void loop()
 #if SERIAL_INPUT
 
   // Wait for user input
-  while(!Serial.available()) ;
+  while (!Serial.available());
 
   // Read user input from the serial
   String input = Serial.readString();
 
   // Remove the extraneous \n from the input
-  input.remove(input.length() -1);
+  input.remove(input.length() - 1);
 
   // Convert the message defined above into Morse code
   // then read it
@@ -83,9 +83,9 @@ void loop()
   // Convert the message defined above into Morse code
   // then read it
   readMorseCodeMessage(latinMessageToMorseCode(global::message));
-  
+
 #endif // SERIAL_INPUT
-  
+
   delay(2 * global::ws);
   Serial.println();
   Serial.flush();
@@ -136,7 +136,7 @@ String latinCharacterToMorseCode(char c)
   else if (c == '9') return "----.";
   else if (c == '0') return "-----";
   else if (c == ' ') return " "; // Space between words, interpreted as 7 units of time
-  
+
   // Ignore invalid inputs
   else
   {
@@ -186,7 +186,7 @@ String latinMessageToMorseCode(String message)
 void readMorseCode(char c)
 {
   updateTimeUnit();
-  
+
   // Toggle the LED for the required units of time if
   // the character is a dot or dash, delay for the required
   // units of time if it is a letter or word space
@@ -217,7 +217,7 @@ void readMorseCodeMessage(String morseCode)
     // Only apply a unit of time between letters when the end of the message is not reached,
     // and neither the current character nor the next character are a letter or word space
     if ((i + 1) != morseCode.length() && morseCode[i] != 'l' && morseCode[i + 1] != 'l'
-        && morseCode[i] != ' ' && morseCode[i + 1] != ' ')
+      && morseCode[i] != ' ' && morseCode[i + 1] != ' ')
     {
       delay(global::timeUnit);
     }
@@ -258,7 +258,7 @@ void updateTimeUnit()
     Serial.print("   Pot reading: ");
     Serial.println(potValue);
     Serial.flush();
-    
+
     global::previousTimeUnit = global::timeUnit;
     updateMorseTimes();
   }
