@@ -1,7 +1,26 @@
-// Specify whether or serial input
+/* 
+ *  File: lab2.ino
+ *  Author: Matthew Polsom
+ *  Course: CS 207 Lab
+ *  Lab Number: 2
+ *  Date: 20th September, 2018
+ *  
+ *  Program Name: Morse Code
+ *  
+ *  Program Description: This program takes either a hardcoded message or data from the serial monitor
+ *    as input and then translate that input to Morse code. The Morse code is then displayed to the
+ *    user by flashing the LED as well as playing sound over a piezo speaker.
+ *    
+ *  Setup:  LED connected to pin 7
+ *          piezo connected to pin 8
+ *          potentiometer connected to pin A0
+ */
+
+// Specify whether serial input
 // or a hardcoded message is to be used
 #define SERIAL_INPUT false
 
+// Global variables
 namespace global
 {
 
@@ -10,7 +29,7 @@ namespace global
   int const piezo = 8;  // Piezo control
   int const pot = 0;    // Potentiometer analog read on A0
 
-  // Define a standard unit of time which will then be modified by the potentiometer
+  // Define a minimum unit of time which will then be modified by the potentiometer
   int const timeUnitBase = 50;
 
   // Final value for the time unit after potentiometer modifications
@@ -73,20 +92,24 @@ void loop()
   // Remove the extraneous \n from the input
   input.remove(input.length() - 1);
 
-  // Convert the message defined above into Morse code
-  // then read it
-  readMorseCodeMessage(latinMessageToMorseCode(input));
+  // Sanitize the input of unsupported characters
+  String sanitizedMessage = sanitizeMessage(input)
+
+  // Convert the message defined above into Morse code then read it
+  readMorseCodeMessage(latinMessageToMorseCode(sanitizedMessage));
 
   // Hardcoded message
 #else
 
-  // Convert the message defined above into Morse code
-  // then read it
-  readMorseCodeMessage(latinMessageToMorseCode(global::message));
+  // Sanitize the message of unsupported characters
+  String sanitizedMessage = sanitizeMessage(global::message);
+  
+  // Convert the message defined above into Morse code then read it
+  readMorseCodeMessage(latinMessageToMorseCode(sanitizedMessage));
 
 #endif // SERIAL_INPUT
 
-  delay(2 * global::ws);
+  delay(global::ws);
   Serial.println();
   Serial.flush();
 }
@@ -94,8 +117,30 @@ void loop()
 
 
 
-// Take a character as input and return the corresponding
-// Morse code if it is a supported latin alphanumeric character,
+// Take the input message and sanitize it of all unsupported characters
+String sanitizeMessage(String message)
+{
+  String sanitizedMessage = "";
+
+  // Check each character against the list of supported characters
+  // Add the character to the sanitized string only if it is found
+  // in the conversion list
+  for (int i = 0; i < message.length(); i++)
+  {
+    if (latinCharacterToMorseCode(message[i]) != "")
+    {
+      sanitizedMessage += message[i];
+    }
+  }
+
+  return sanitizedMessage;
+}
+
+
+
+
+// Take a character as input and return the corresponding Morse
+// code if it is a supported latin alphanumeric character,
 // return nothing if it is not supported.
 String latinCharacterToMorseCode(char c)
 {
@@ -143,7 +188,7 @@ String latinCharacterToMorseCode(char c)
     Serial.print("WARNING (latinCharacterToMorseCode): unsupported input. Unsupported input was: ");
     Serial.println(c);
     Serial.flush();
-
+    
     return "";
   }
 }
@@ -170,7 +215,7 @@ String latinMessageToMorseCode(String message)
     }
   }
 
-  // Print the morse code message
+  // Print the Morse code message
   Serial.print("Morse code: ");
   Serial.println(morseCode);
   Serial.flush();
@@ -205,8 +250,7 @@ void readMorseCode(char c)
 
 
 
-// Read a whole Morse code message and apply a delay between 
-// letter when applicable
+// Read a whole Morse code message and apply a letter delay when applicable
 void readMorseCodeMessage(String morseCode)
 {
   // Read the message one character at a time
@@ -227,9 +271,9 @@ void readMorseCodeMessage(String morseCode)
 
 
 
-// Function for turning the LED on for the specified time duration
+// Turn the LED on and tone the piezo for the specified duration
 void playMorseCode(int duration)
-{
+{ 
   digitalWrite(global::led, HIGH);
   tone(global::piezo, global::piezoFrequency, duration);
   delay(duration);
@@ -243,7 +287,7 @@ void playMorseCode(int duration)
 void updateTimeUnit()
 {
   // Add the potentiometer reading to the base time unit, divided by 2 to reduce sensitivity
-  // Possible values of timeUnitBase to timeUnitBase + 1023 / 2
+  // Possible values are timeUnitBase to timeUnitBase + 1023 / 2
   int potValue = analogRead(global::pot);
   int modifyingValue = potValue / 2;
   global::timeUnit = global::timeUnitBase + modifyingValue;
@@ -267,7 +311,7 @@ void updateTimeUnit()
 
 
 
-// Update the global Morse code timings
+// Update the global Morse code timings with the updated time unit
 void updateMorseTimes()
 {
   global::dot = global::dotTime * global::timeUnit;     // One unit of time
