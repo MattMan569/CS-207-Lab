@@ -1,6 +1,7 @@
 /* 
  *  File: lab2.ino
  *  Author: Matthew Polsom
+ *  Github: https://github.com/MattMan569/CS-207-Lab/tree/master/lab2
  *  Course: CS 207 Lab
  *  Lab Number: 2
  *  Date: 20th September, 2018
