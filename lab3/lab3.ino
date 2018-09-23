@@ -8,9 +8,11 @@
  * 
  * Program Name: LED Buttons
  * 
- * Program Description: 
+ * Program Description: This program switches two LEDs between on and off. Only one LED
+ *   is on at once. Button 1 turns LED 1 on and LED 2 off, and vice versa for button 2.
  */
 
+// Global variables
 namespace global
 {
   // Pin definitions
