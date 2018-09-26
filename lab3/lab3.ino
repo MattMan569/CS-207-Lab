@@ -10,6 +10,8 @@
  * 
  * Program Description: This program switches two LEDs between on and off. Only one LED
  *   is on at once. Button 1 turns LED 1 on and LED 2 off, and vice versa for button 2.
+ *
+ * Setup: Schematic available at https://github.com/MattMan569/CS-207-Lab/blob/master/lab3/CS207L3_Schematic.pdf
  */
 
 // Global variables
@@ -49,6 +51,7 @@ void loop()
 // Check the current state of the buttons
 void checkButtons()
 {
+  // The buttons are wired in a pull-up circuit
   // Button 1 turns LED 1 on and LED 2 off,
   // vice versa for button 2
   if(!digitalRead(global::buttonPinOne))
