@@ -1,6 +1,7 @@
 /*
  * File: lab3.ino
  * Author: Matthew Polsom
+ * Github: https://github.com/MattMan569/CS-207-Lab/tree/master/lab3
  * Date: 20th September, 2018
  * 
  * Course: CS 207 Lab
