@@ -19,10 +19,10 @@
 namespace global
 {
   // Pin definitions
-  byte const buttonPinOne = 2;
-  byte const buttonPinTwo = 3;
-  byte const ledPinOne = 11;
-  byte const ledPinTwo = 12;
+  int const buttonPinOne = 2;
+  int const buttonPinTwo = 3;
+  int const ledPinOne = 11;
+  int const ledPinTwo = 12;
 }
 
 void setup()
@@ -55,12 +55,12 @@ void checkButtons()
   // The buttons are wired in a pull-up circuit
   // Button 1 turns LED 1 on and LED 2 off,
   // vice versa for button 2
-  if(!digitalRead(global::buttonPinOne))
+  if(digitalRead(global::buttonPinOne))
   {
     digitalWrite(global::ledPinOne, HIGH);
     digitalWrite(global::ledPinTwo, LOW);
   }
-  else if(!digitalRead(global::buttonPinTwo))
+  if(!digitalRead(global::buttonPinTwo))
   {
     digitalWrite(global::ledPinOne, LOW);
     digitalWrite(global::ledPinTwo, HIGH);
