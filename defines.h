@@ -33,7 +33,7 @@
       Serial.print(F("   Function:"));  \
       Serial.print(__FUNCTION__);       \
       Serial.println(F(")"));           \
-      Serial.flush()
+      Serial.flush() // Intentional missing semicolon to force user to place a semicolon in the program
 
 #else
 
