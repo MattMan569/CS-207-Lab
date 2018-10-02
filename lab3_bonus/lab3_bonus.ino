@@ -16,7 +16,7 @@
  *    The second function will slow down the cycle, doubling the cycle's time with each execution.
  *    The third function will speed up the cycle, halving the cycle's time with each execution.
  * 
- * Setup: 
+ * Setup: https://github.com/MattMan569/CS-207-Lab/blob/master/lab3_bonus/CS207L3_Bonus_Schematic.pdf
  */
 
 #include "globals.h"
