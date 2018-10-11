@@ -1,9 +1,3 @@
-/*    
- * Analog to Volts Function Demo
- * Created Oct 2011 by Alex Clarke.
- * Mofified 11th Oct. 2018 by Matthew Polsom
- */
-
 /*
  * Program Name: exercise2.ino
  * Description: This program turns on a fan when the temperature read from
