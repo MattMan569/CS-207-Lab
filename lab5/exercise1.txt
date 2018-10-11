@@ -1,0 +1,7 @@
+At V1:
+  Arduino: 4.78
+  Multimeter: 4.83
+
+At V2:
+  Arduino: 0.86
+  Multimeter: 0.87
